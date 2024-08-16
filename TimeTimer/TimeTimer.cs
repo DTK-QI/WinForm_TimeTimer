@@ -4,6 +4,7 @@ using System.IO;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace TimeTimer
 {
@@ -19,6 +20,7 @@ namespace TimeTimer
         private string TabPattern;
 
         private int isRunning; // 0 free 1 running 2 pause
+        private string exeDirectory;
 
         private Timer animationTimer;
         private bool isPanelVisible;
@@ -41,6 +43,7 @@ namespace TimeTimer
             records = new List<RecordModel>();
             record = new RecordModel();
             TabPattern = @"\t";
+            exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             // 初始化 Panel 和 Timer
             maxPanelHeight = panel1.Height;
@@ -52,14 +55,13 @@ namespace TimeTimer
             buttonTogglePanel.Click += ButtonTogglePanel_Click;
 
             this.SizeChanged += Form1_SizeChanged;
-
         }
 
         
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (((DateTime.Now - AlterTime).Minutes - PauseTime.Minute) > 1)
+            if (((DateTime.Now - AlterTime).Minutes - TotalPauseTime.Minutes) >= 30)
             {
                 AlterTime = DateTime.Now;
                 MessageBox.Show("已使用30分鐘了~~ 記得休息一下");
@@ -81,13 +83,43 @@ namespace TimeTimer
                 MessageBox.Show("請輸入使用者名稱！");
                 return;
             }
+            if (string.IsNullOrEmpty(HospID.Text))
+            {
+                MessageBox.Show("請輸入院區！");
+                return;
+            }
+
+            //判斷病人是否是輸入同一位進行防呆
+            if (records.Count > 0)
+            {
+                var exam_1 = records.Where(x => x.HospID == HospID.Text).ToList();
+                var exam_2 = exam_1.Where(x => x.SerialNumber == txtSerialNumber.Text).ToList();
+
+                if (exam_2.Count > 0)
+                {
+                    DialogResult result = MessageBox.Show("已輸入此病患確認是否要再記錄一筆?", "確認是否繼續", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
 
             txtSerialNumber.Cursor = Cursors.No;
             txtSerialNumber.BackColor = Color.Gray;
             UserName.Cursor = Cursors.No;
             UserName.BackColor = Color.Gray;
+            HospID.Cursor = Cursors.No;
+            HospID.BackColor = Color.Gray;
+            Stop.Enabled = true;
+            Pause.Enabled = true;
 
-            if (isRunning == 0 )
+            
+
+            if (isRunning == 0)
             {
                 startTime = DateTime.Now;
                 AlterTime = DateTime.Now;
@@ -97,6 +129,7 @@ namespace TimeTimer
                 SytstemStatus.Image = Properties.Resources._34556_ball_red_icon;
 
                 // 將 "開始" 動作記錄下來
+                record.HospID = HospID.Text;
                 record.SerialNumber = txtSerialNumber.Text;
                 record.UserName = UserName.Text;
                 record.StartTime = DateTime.Now;
@@ -139,45 +172,51 @@ namespace TimeTimer
                 record.TotalUseTime = record.EndTime - record.StartTime - TotalPauseTime;
                 records.Add(record);
 
-                listBoxRecords.Items.Add($"ID:{record.SerialNumber} 時間:{record.TotalUseTime.ToString(@"hh\:mm\:ss\.fff")}");
-                TotalPauseTime = new TimeSpan();
-                record = new RecordModel();
+                //listBoxRecords.Items.Add($"ID:{record.SerialNumber} 時間:{record.TotalUseTime.ToString(@"hh\:mm\:ss\.fff")}");
+
             }
 
             txtSerialNumber.Cursor = Cursors.IBeam;
             txtSerialNumber.BackColor = Color.White;
             UserName.Cursor = Cursors.IBeam;
             UserName.BackColor = Color.White;
+            HospID.Cursor = Cursors.IBeam;
+            HospID.BackColor = Color.White;
+            Stop.Enabled = false;
+            Pause.Enabled = false;
+
+            //儲存檔案
+            string fileName = DateTime.Now.ToString("MMdd_HHmm") + "output.tsv";
+            string filePath = Path.Combine(exeDirectory, fileName);
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.Write("使用者名稱\t");
+                writer.Write("院區\t");
+                writer.Write("長表號碼\t");
+                writer.Write("開始時間\t");
+                writer.Write("結束時間\t");
+                writer.Write("暫停總時間\t");
+                writer.Write("總使用時間\t\n");
+                foreach (var item in records)
+                {
+                    writer.Write(item.UserName + "\t");
+                    writer.Write(item.HospID + "\t");
+                    writer.Write(item.SerialNumber + "\t");
+                    writer.Write(item.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\t");
+                    writer.Write(item.EndTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\t");
+                    writer.Write(item.TotalPauseTime.ToString(@"hh\:mm\:ss\.fff") + "\t");
+                    writer.Write(item.TotalUseTime.ToString(@"hh\:mm\:ss\.fff") + "\t\n");
+                }
+            }
+
+            listBoxRecords.Items.Add($"ID:{record.SerialNumber} 時間:{record.TotalUseTime.ToString(@"hh\:mm\:ss\.fff")} 已存檔!");
+            TotalPauseTime = new TimeSpan();
+            record = new RecordModel();
         }
 
         private void btnExport_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "文本文件 (*.txt)|*.txt";
-
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
-                {
-                    writer.Write("使用者名稱\t");
-                    writer.Write("長表號碼\t");
-                    writer.Write("開始時間\t");
-                    writer.Write("結束時間\t");
-                    writer.Write("暫停總時間\t");
-                    writer.Write("總使用時間\t\n");
-                    foreach (var item in records)
-                    {
-                        writer.Write(item.UserName + "\t");
-                        writer.Write(item.SerialNumber + "\t");
-                        writer.Write(item.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\t");
-                        writer.Write(item.EndTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\t");
-                        writer.Write(item.TotalPauseTime.ToString(@"hh\:mm\:ss\.fff") + "\t");
-                        writer.Write(item.TotalUseTime.ToString(@"hh\:mm\:ss\.fff") + "\t\n");
-                    }
-                }
-
-                MessageBox.Show("紀錄已成功導出！");
-            }
+            
         }
 
         private void ButtonTogglePanel_Click(object sender, EventArgs e)
