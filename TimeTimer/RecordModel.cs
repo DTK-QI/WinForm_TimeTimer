@@ -9,7 +9,6 @@ namespace TimeTimer
     class RecordModel
     {
         public string UserName { get; set; }
-        public string HospID { get; set; }
         public string SerialNumber { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

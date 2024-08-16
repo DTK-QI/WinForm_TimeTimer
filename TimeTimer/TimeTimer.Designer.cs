@@ -45,7 +45,6 @@ namespace TimeTimer
             bindingSource1 = new System.Windows.Forms.BindingSource(components);
             UserName = new System.Windows.Forms.TextBox();
             SytstemStatus = new System.Windows.Forms.PictureBox();
-            HospID = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)SytstemStatus).BeginInit();
             SuspendLayout();
@@ -53,9 +52,9 @@ namespace TimeTimer
             // txtSerialNumber
             // 
             txtSerialNumber.BackColor = System.Drawing.SystemColors.Window;
-            txtSerialNumber.Location = new System.Drawing.Point(211, 77);
+            txtSerialNumber.Location = new System.Drawing.Point(130, 77);
             txtSerialNumber.Name = "txtSerialNumber";
-            txtSerialNumber.Size = new System.Drawing.Size(192, 27);
+            txtSerialNumber.Size = new System.Drawing.Size(273, 27);
             txtSerialNumber.TabIndex = 0;
             // 
             // Time
@@ -96,11 +95,11 @@ namespace TimeTimer
             // 
             LongFormID.AutoSize = true;
             LongFormID.Font = new System.Drawing.Font("Microsoft JhengHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            LongFormID.Location = new System.Drawing.Point(6, 80);
+            LongFormID.Location = new System.Drawing.Point(40, 80);
             LongFormID.Name = "LongFormID";
-            LongFormID.Size = new System.Drawing.Size(118, 19);
+            LongFormID.Size = new System.Drawing.Size(81, 19);
             LongFormID.TabIndex = 6;
-            LongFormID.Text = "院區-流水號(ID)";
+            LongFormID.Text = "流水號(ID)";
             // 
             // NowTime
             // 
@@ -177,20 +176,11 @@ namespace TimeTimer
             SytstemStatus.TabIndex = 14;
             SytstemStatus.TabStop = false;
             // 
-            // HospID
-            // 
-            HospID.BackColor = System.Drawing.Color.White;
-            HospID.Location = new System.Drawing.Point(130, 77);
-            HospID.Name = "HospID";
-            HospID.Size = new System.Drawing.Size(75, 27);
-            HospID.TabIndex = 15;
-            // 
             // TimerForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(415, 195);
-            Controls.Add(HospID);
             Controls.Add(SytstemStatus);
             Controls.Add(UserName);
             Controls.Add(User);
@@ -229,7 +219,6 @@ namespace TimeTimer
         private System.Windows.Forms.BindingSource bindingSource1;
         private System.Windows.Forms.TextBox UserName;
         private System.Windows.Forms.PictureBox SytstemStatus;
-        private System.Windows.Forms.TextBox HospID;
     }
 }
 

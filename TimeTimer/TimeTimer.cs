@@ -61,11 +61,11 @@ namespace TimeTimer
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (((DateTime.Now - AlterTime).Minutes - TotalPauseTime.Minutes) >= 30)
-            {
-                AlterTime = DateTime.Now;
-                MessageBox.Show("已使用30分鐘了~~ 記得休息一下");
-            }
+            //if (((DateTime.Now - AlterTime).Minutes - TotalPauseTime.Minutes) >= 30)
+            //{
+            //    AlterTime = DateTime.Now;
+            //    MessageBox.Show("已使用30分鐘了~~ 記得休息一下");
+            //}
 
             elapsedTime = DateTime.Now - startTime - TotalPauseTime;
             NowTime.Text = elapsedTime.ToString(@"hh\:mm\:ss");
@@ -83,21 +83,15 @@ namespace TimeTimer
                 MessageBox.Show("請輸入使用者名稱！");
                 return;
             }
-            if (string.IsNullOrEmpty(HospID.Text))
-            {
-                MessageBox.Show("請輸入院區！");
-                return;
-            }
 
             //判斷病人是否是輸入同一位進行防呆
             if (records.Count > 0)
             {
-                var exam_1 = records.Where(x => x.HospID == HospID.Text).ToList();
-                var exam_2 = exam_1.Where(x => x.SerialNumber == txtSerialNumber.Text).ToList();
+                var exam_2 = records.Where(x => x.SerialNumber == txtSerialNumber.Text).ToList();
 
                 if (exam_2.Count > 0)
                 {
-                    DialogResult result = MessageBox.Show("已輸入此病患確認是否要再記錄一筆?", "確認是否繼續", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show("已輸入同比紀錄是否要繼續?", "確認是否繼續", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                     }
@@ -112,8 +106,6 @@ namespace TimeTimer
             txtSerialNumber.BackColor = Color.Gray;
             UserName.Cursor = Cursors.No;
             UserName.BackColor = Color.Gray;
-            HospID.Cursor = Cursors.No;
-            HospID.BackColor = Color.Gray;
             Stop.Enabled = true;
             Pause.Enabled = true;
 
@@ -129,7 +121,6 @@ namespace TimeTimer
                 SytstemStatus.Image = Properties.Resources._34556_ball_red_icon;
 
                 // 將 "開始" 動作記錄下來
-                record.HospID = HospID.Text;
                 record.SerialNumber = txtSerialNumber.Text;
                 record.UserName = UserName.Text;
                 record.StartTime = DateTime.Now;
@@ -180,8 +171,6 @@ namespace TimeTimer
             txtSerialNumber.BackColor = Color.White;
             UserName.Cursor = Cursors.IBeam;
             UserName.BackColor = Color.White;
-            HospID.Cursor = Cursors.IBeam;
-            HospID.BackColor = Color.White;
             Stop.Enabled = false;
             Pause.Enabled = false;
 
@@ -191,8 +180,7 @@ namespace TimeTimer
             using (StreamWriter writer = new StreamWriter(filePath))
             {
                 writer.Write("使用者名稱\t");
-                writer.Write("院區\t");
-                writer.Write("長表號碼\t");
+                writer.Write("流水號\t");
                 writer.Write("開始時間\t");
                 writer.Write("結束時間\t");
                 writer.Write("暫停總時間\t");
@@ -200,7 +188,6 @@ namespace TimeTimer
                 foreach (var item in records)
                 {
                     writer.Write(item.UserName + "\t");
-                    writer.Write(item.HospID + "\t");
                     writer.Write(item.SerialNumber + "\t");
                     writer.Write(item.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\t");
                     writer.Write(item.EndTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\t");
