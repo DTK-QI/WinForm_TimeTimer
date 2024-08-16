@@ -59,7 +59,7 @@ namespace TimeTimer
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (((DateTime.Now - AlterTime).Minutes - PauseTime.Minute) > 1)
+            if (((DateTime.Now - AlterTime).Minutes - PauseTime.Minute) > 30)
             {
                 AlterTime = DateTime.Now;
                 MessageBox.Show("已使用30分鐘了~~ 記得休息一下");
